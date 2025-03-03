@@ -1,12 +1,27 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Re-Pass</title>
-    <script type="application/javascript" src="skiko.js"></script>
-    <script type="application/javascript" src="composeApp.js"></script>
+    <script>
+        function loadApp() {
+            // Detect Safari and browsers without Wasm GC support
+            const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+            const hasWasmGC = typeof WebAssembly.GC === 'function';
+
+            if (!isSafari && hasWasmGC) {
+                // Load WASM version
+                import('./composeApp.wasm').then(() => {
+                    import('./composeApp.js');
+                });
+            } else {
+                // Fallback to JS version
+                const script = document.createElement('script');
+                script.src = "composeApp.js";
+                document.head.appendChild(script);
+            }
+        }
+    </script>
 </head>
-<body>
+<body onload="loadApp()">
 <canvas id="ComposeTarget"></canvas>
 </body>
 </html>
